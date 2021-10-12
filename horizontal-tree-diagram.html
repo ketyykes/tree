@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<style>
+
+  .node circle {
+    fill: rgb(255, 255, 255);
+    stroke: rgb(255, 130, 130);
+    stroke-width: 3px;
+  }
+
+  .node text {
+    font: 12px sans-serif;
+  }
+
+  .link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 2px;
+  }
+</style>
+
+<body>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    let treeData = {
+      name: "Web",
+      children: [
+        {
+          name: "Javascript",
+          children: [
+            { name: "Typescript" },
+            { name: "Dart" },
+            { name: "CoffeeScript" },
+          ],
+        },
+        {
+          name: "HTML",
+          children: [{ name: "pug" }],
+        },
+        {
+          name: "CSS",
+          children: [{ name: "SCSS" }, { name: "LESS" }, { name: "Stylus" }],
+        },
+      ],
+    };
+    //設定邊界
+    let margin = { top: 20, right: 90, bottom: 30, left: 90 },
+      width = 660 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+    
+      //設定樹寬高
+
+    let tree = d3.tree().size([width, height]);
+
+    //將數據階層化
+    let hierarchyData = d3.hierarchy(treeData, function (d) {
+      return d.children;
+    });
+
+    // 將階層化的數據帶入tree layout
+    hierarchyData = tree(hierarchyData);
+
+    let svg = d3
+      .select("body")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom),
+      g = svg
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    //創建一個水平link產生器
+    let linkMkr = d3
+      .linkHorizontal()
+      .x((d) => d.y)
+      .y((d) => d.x);
+    //繪製出樹枝
+    g.selectAll("path").data(hierarchyData.links())
+    .join("path")
+    .attr("d",d=>{
+      return linkMkr(d);
+    })
+    .attr("stroke","black").attr("fill","none");
+
+    
+    let node = g
+      .selectAll(".node")
+      .data(hierarchyData.descendants())
+      .join("g")
+      .attr("class", "node")
+      .attr("transform", function (d) {
+        return "translate(" + d.y + "," + d.x + ")";
+      });
+
+    node.append("circle").attr("r", 10);
+
+    node
+      .append("text")
+      .attr("dy", "-1.5em")
+      .style("text-anchor", function (d) {
+        return "middle";
+      })
+      .text(function (d) {
+        return d.data.name;
+      });
+  </script>
+</body>

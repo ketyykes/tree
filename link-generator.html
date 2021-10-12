@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <body>
+      <svg width="800" height="600" id="multiLink"></svg>
+    <script>
+      let linkGen = d3.linkHorizontal();
+
+      let multiLinkData = [
+    {source: [50,50], target: [175,25]},
+    {source: [50,50], target: [175,50]},
+    {source: [50,50], target: [175,75]},
+];
+
+d3.select("#multiLink")
+    .selectAll("path")
+    .data(multiLinkData)
+    .join("path")
+    .attr("d", linkGen)
+    .attr("fill", "none")
+    .attr("stroke", "black");
+    </script>
+  </body>
+</html>

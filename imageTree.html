@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<style>
+  /* set the CSS */
+
+ 
+
+  .node text {
+    font: 12px;
+  }
+
+
+  .link {
+    fill: none;
+    stroke-width: 2px;
+  }
+</style>
+
+<body>
+  <!-- load the d3.js library -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    let treeData = {
+      name: "祖先",
+      level: "red",
+      icon: "https://images.unsplash.com/photo-1616504152265-535fb626017d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2070&q=80",
+      children: [
+        {
+          name: "孩子",
+          level: "orange",
+          icon: "https://images.unsplash.com/photo-1483718983629-1100e0808b32?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1170&q=",
+          children: [
+            {
+              name: "長孫",
+              icon: "https://images.unsplash.com/photo-1616504152528-c46d3292a6ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1170&q=80",
+              level: "orange",
+            },
+            {
+              name: "我雌性",
+              icon: "https://images.unsplash.com/photo-1616504152528-c46d3292a6ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1170&q=80",
+              level: "green",
+            },
+          ],
+        },
+        {
+          name: "孩子不孕",
+          icon: "https://images.unsplash.com/photo-1483718983629-1100e0808b32?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1170&q=",
+          level: "red",
+        },
+      ],
+    };
+
+    let margin = { top: 20, right: 90, bottom: 30, left: 90 },
+      width = 660 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+
+    let tree = d3.tree().size([height, width]);
+
+    let nodes = d3.hierarchy(treeData, function (d) {
+      return d.children;
+    });
+
+    nodes = tree(nodes);
+
+    let svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom),
+      g = svg
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    let linkMkr = d3
+      .linkHorizontal()
+      .x((d) => d.y)
+      .y((d) => d.x);
+    let link = g
+      .selectAll("path")
+      .data(nodes.links())
+      .join("path")
+      .attr("class", "link")
+      .style("stroke", function (d) {
+        return d.target.data.level;
+      })
+      .attr("d", function (d) {
+        return linkMkr(d);
+      })
+      .attr("stroke", "black")
+      .attr("fill", "none");
+    let node = g
+      .selectAll(".node")
+      .data(nodes.descendants())
+      .enter()
+      .append("g")
+      .attr("class", function (d) {
+        return "node" + (d.children ? " node--internal" : " node--leaf");
+      })
+      .attr("transform", function (d) {
+        return "translate(" + d.y + "," + d.x + ")";
+      });
+
+    node
+      .append("image")
+      .attr("xlink:href", function (d) {
+        return d.data.icon;
+      })
+      .attr("x", "-50px")
+      .attr("y", "-50px")
+      .attr("width", "100px")
+      .attr("height", "100px");
+
+    node
+      .append("text")
+      .attr("x", "0")
+      .attr("y", "-50")
+      .style("text-anchor", "middle")
+      .text(function (d) {
+        return d.data.name;
+      });
+  </script>
+</body>
